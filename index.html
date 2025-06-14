@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>JavaScript Visualizations - Homework</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
     <style>
+        html { scroll-behavior: smooth; }
         body { font-family: Arial, sans-serif; padding: 20px; }
         nav a { margin: 0 15px; text-decoration: none; color: navy; }
         section { margin-top: 60px; }
@@ -22,7 +23,7 @@
     <a href="#films">Films</a>
     <a href="#grocery">Grocery Stores</a>
     <a href="#cereals">Cereals</a>
-    <span style="word-spacing:normal; color:black; font-family:'Annie Use Your Telescope', arial, serif; font-size:20px;">← Click a tab to see details!</span>
+    <span style="color:black; font-size:20px;">← Click a tab to see details!</span>
 </nav>
 
 <section id="cars">
@@ -76,6 +77,7 @@
 </section>
 
 <script>
+// Generic CSV loader
 function loadCSV(file, callback) {
     Papa.parse(file, {
         download: true,
@@ -86,6 +88,7 @@ function loadCSV(file, callback) {
     });
 }
 
+// 1. Cars - Bar Chart
 loadCSV('cars.csv', function(data) {
     const hpByOrigin = {};
     data.forEach(row => {
@@ -98,7 +101,7 @@ loadCSV('cars.csv', function(data) {
     });
     const labels = Object.keys(hpByOrigin);
     const values = labels.map(o => hpByOrigin[o].reduce((a,b) => a + b) / hpByOrigin[o].length);
-    new Chart(chartCars, {
+    new Chart(document.getElementById('chartCars'), {
         type: 'bar',
         data: {
             labels: labels,
@@ -107,12 +110,13 @@ loadCSV('cars.csv', function(data) {
     });
 });
 
+// 2. Mutual Funds - Line Chart
 loadCSV('mutualfunds.csv', function(data) {
     const labels = data.map(d => d.Category);
     const ytd = data.map(d => parseFloat(d.YTD));
     const yr5 = data.map(d => parseFloat(d['5YR']));
     const yr10 = data.map(d => parseFloat(d['10YR']));
-    new Chart(chartFunds, {
+    new Chart(document.getElementById('chartFunds'), {
         type: 'line',
         data: {
             labels: labels,
@@ -125,6 +129,7 @@ loadCSV('mutualfunds.csv', function(data) {
     });
 });
 
+// 3. Films - Scatter Plot
 loadCSV('film.csv', function(data) {
     const points = [], colors = [];
     data.forEach(row => {
@@ -135,7 +140,7 @@ loadCSV('film.csv', function(data) {
             colors.push(row.Awards === 'Yes' ? 'green' : 'red');
         }
     });
-    new Chart(chartFilms, {
+    new Chart(document.getElementById('chartFilms'), {
         type: 'scatter',
         data: {
             datasets: [{ label: 'Films', data: points, backgroundColor: colors }]
@@ -149,6 +154,7 @@ loadCSV('film.csv', function(data) {
     });
 });
 
+// 4. Grocery Stores - Pie Chart
 loadCSV('grocerystoresurvey.csv', function(data) {
     const methodTotals = {};
     data.forEach(row => {
@@ -161,7 +167,7 @@ loadCSV('grocerystoresurvey.csv', function(data) {
     });
     const labels = Object.keys(methodTotals);
     const values = labels.map(l => methodTotals[l]);
-    new Chart(chartGrocery, {
+    new Chart(document.getElementById('chartGrocery'), {
         type: 'pie',
         data: {
             labels: labels,
@@ -170,13 +176,18 @@ loadCSV('grocerystoresurvey.csv', function(data) {
     });
 });
 
+// 5. Cereals - Bubble Chart
 loadCSV('cereals.csv', function(data) {
     const bubbles = data.map(row => ({
         label: row.Cereal,
-        data: [{ x: parseFloat(row.Sugars), y: parseFloat(row.Protein), r: 6 }],
+        data: [{
+            x: parseFloat(row.Sugars),
+            y: parseFloat(row.Protein),
+            r: 6 // optionally adjust based on another metric like Calories
+        }],
         backgroundColor: 'peru'
     }));
-    new Chart(chartCereals, {
+    new Chart(document.getElementById('chartCereals'), {
         type: 'bubble',
         data: { datasets: bubbles },
         options: {
