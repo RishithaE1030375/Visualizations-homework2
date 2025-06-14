@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>JavaScript Visualizations - Homework</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        nav a { margin: 0 15px; text-decoration: none; color: navy; }
+        section { margin-top: 60px; }
+        canvas { width: 100% !important; height: 700px !important; max-width: none; display: block; margin: 20px auto; }
+        .report { max-width: 1000px; margin: auto; font-size: 16px; padding: 10px; }
+    </style>
+</head>
+<body>
+<h1>JavaScript Visualization Homework - Rishitha Erupaka [#1030375]</h1>
+
+<nav>
+    <a href="#cars">Cars</a>
+    <a href="#mutualfunds">Mutual Funds</a>
+    <a href="#films">Films</a>
+    <a href="#grocery">Grocery Stores</a>
+    <a href="#cereals">Cereals</a>
+</nav>
+
+<section id="cars">
+    <h2>Cars Visualization (Bar Chart)</h2>
+    <div class="report">
+        This bar chart displays the average horsepower of cars categorized by their country of origin: American, European, and Japanese.
+        It allows easy comparison of engine performance across regions using a simple, interpretable visual.
+        Bar charts are ideal for showing averages across discrete categories like geographic origin.
+    </div>
+    <canvas id="chartCars"></canvas>
+</section>
+
+<section id="mutualfunds">
+    <h2>Mutual Funds Visualization (Line Chart)</h2>
+    <div class="report">
+        This line chart visualizes the trends in YTD, 5-year, and 10-year returns across various mutual fund categories.
+        Line charts help track changes over time and compare multiple performance metrics side-by-side.
+        It enables viewers to recognize long-term growth patterns or performance volatility clearly.
+    </div>
+    <canvas id="chartFunds"></canvas>
+</section>
+
+<section id="films">
+    <h2>Films Visualization (Scatter Plot)</h2>
+    <div class="report">
+        This scatter plot shows how film length relates to popularity, with colors indicating whether a film received awards.
+        This helps highlight trends and outliers among high- and low-performing films.
+        Using a scatter plot makes it easier to detect correlations between continuous variables.
+    </div>
+    <canvas id="chartFilms"></canvas>
+</section>
+
+<section id="grocery">
+    <h2>Grocery Stores Visualization (Pie Chart)</h2>
+    <div class="report">
+        This pie chart illustrates the proportion of total purchases made using each payment method.
+        It provides a quick view of consumer preferences in payment behavior.
+        Pie charts are best used when representing parts of a whole, such as categorical proportions.
+    </div>
+    <canvas id="chartGrocery"></canvas>
+</section>
+
+<section id="cereals">
+    <h2>Cereals Visualization (Bubble Chart)</h2>
+    <div class="report">
+        This bubble chart compares sugar and protein content for various cereals.
+        Each cereal is shown as a bubble with position based on nutritional values.
+        This type of chart helps visualize multi-dimensional nutritional profiles efficiently.
+    </div>
+    <canvas id="chartCereals"></canvas>
+</section>
+
+<script>
+function loadCSV(file, callback) {
+    Papa.parse(file, {
+        download: true,
+        header: true,
+        complete: function(results) {
+            callback(results.data);
+        }
+    });
+}
+
+loadCSV('cars.csv', function(data) {
+    const hpByOrigin = {};
+    data.forEach(row => {
+        const origin = row.Origin;
+        const hp = parseFloat(row.Horsepower);
+        if (!isNaN(hp)) {
+            if (!hpByOrigin[origin]) hpByOrigin[origin] = [];
+            hpByOrigin[origin].push(hp);
+        }
+    });
+    const labels = Object.keys(hpByOrigin);
+    const values = labels.map(o => hpByOrigin[o].reduce((a,b) => a + b) / hpByOrigin[o].length);
+    new Chart(chartCars, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{ label: 'Avg Horsepower', data: values, backgroundColor: 'skyblue' }]
+        }
+    });
+});
+
+loadCSV('mutualfunds.csv', function(data) {
+    const labels = data.map(d => d.Category);
+    const ytd = data.map(d => parseFloat(d.YTD));
+    const yr5 = data.map(d => parseFloat(d['5YR']));
+    const yr10 = data.map(d => parseFloat(d['10YR']));
+    new Chart(chartFunds, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                { label: 'YTD', data: ytd, borderColor: 'red', fill: false },
+                { label: '5YR', data: yr5, borderColor: 'orange', fill: false },
+                { label: '10YR', data: yr10, borderColor: 'green', fill: false }
+            ]
+        }
+    });
+});
+
+loadCSV('film.csv', function(data) {
+    const points = [], colors = [];
+    data.forEach(row => {
+        const len = parseFloat(row.Length);
+        const pop = parseFloat(row.Popularity);
+        if (!isNaN(len) && !isNaN(pop)) {
+            points.push({ x: len, y: pop });
+            colors.push(row.Awards === 'Yes' ? 'green' : 'red');
+        }
+    });
+    new Chart(chartFilms, {
+        type: 'scatter',
+        data: {
+            datasets: [{ label: 'Films', data: points, backgroundColor: colors }]
+        },
+        options: {
+            scales: {
+                x: { title: { display: true, text: 'Length (min)' } },
+                y: { title: { display: true, text: 'Popularity' } }
+            }
+        }
+    });
+});
+
+loadCSV('grocerystoresurvey.csv', function(data) {
+    const methodTotals = {};
+    data.forEach(row => {
+        const method = row.PaymentMethod;
+        const amount = parseFloat(row.PurchaseAmount);
+        if (!isNaN(amount)) {
+            if (!methodTotals[method]) methodTotals[method] = 0;
+            methodTotals[method] += amount;
+        }
+    });
+    const labels = Object.keys(methodTotals);
+    const values = labels.map(l => methodTotals[l]);
+    new Chart(chartGrocery, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{ data: values, backgroundColor: ['#ff9999','#66b3ff','#99ff99','#ffcc99','#c2c2f0'] }]
+        }
+    });
+});
+
+loadCSV('cereals.csv', function(data) {
+    const bubbles = data.map(row => ({
+        label: row.Cereal,
+        data: [{ x: parseFloat(row.Sugars), y: parseFloat(row.Protein), r: 6 }],
+        backgroundColor: 'peru'
+    }));
+    new Chart(chartCereals, {
+        type: 'bubble',
+        data: { datasets: bubbles },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { title: { display: true, text: 'Sugar' } },
+                y: { title: { display: true, text: 'Protein' } }
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>
