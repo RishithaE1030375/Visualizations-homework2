@@ -3,7 +3,7 @@
 **Author:** Rishitha Erupaka  
 **Student ID:** 1030375
 
-This project visualizes five different datasets using HTML, JavaScript, Chart.js, and PapaParse. The purpose is to explore various visualization techniques and deliver insights based on the nature of the dataset.
+This project visualizes five different datasets using HTML, JavaScript, Chart.js. The purpose is to explore various visualization techniques and deliver insights based on the nature of the dataset.
 
 ---
 
@@ -27,22 +27,6 @@ This project visualizes five different datasets using HTML, JavaScript, Chart.js
 5. **Cereals** – *Bubble chart* showing sugar vs protein content for each cereal
 
 Each visualization is accompanied by a brief explanation (3 sentences) justifying the chosen chart type and its insight.
-
----
-
-## 🚀 How to Use
-
-### Open Locally
-1. Unzip the downloaded package.
-2. Open `index.html` in any modern browser (Chrome, Firefox, Edge, etc.).
-3. Ensure all `.csv` files are in the same folder as `index.html`.
-
-### Deploy on GitHub Pages
-1. Create a new GitHub repository.
-2. Upload all files (index.html + CSVs).
-3. Go to `Settings > Pages`.
-4. Set source to `main` and root `/`.
-5. Access the live site using the GitHub Pages URL provided.
 
 ---
 
