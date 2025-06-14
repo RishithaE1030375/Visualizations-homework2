@@ -1,29 +1,82 @@
-
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>JavaScript Data Visualizations</title>
+    <title>JavaScript Visualizations - Homework</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
     <style>
-        canvas { max-width: 800px; margin: 30px auto; display: block; }
         body { font-family: Arial, sans-serif; padding: 20px; }
+        nav a { margin: 0 15px; text-decoration: none; color: navy; }
+        section { margin-top: 60px; }
+        canvas { max-width: 800px; margin: 20px auto; display: block; }
+        .report { max-width: 800px; margin: auto; font-size: 15px; }
     </style>
 </head>
 <body>
-<h2>JavaScript Visualization Homework - Rishitha Erupaka [#1030375]</h2>
+<h1>JavaScript Visualization Homework - Rishitha Erupaka [#1030375]</h1>
 
-<canvas id="chartCars"></canvas>
-<canvas id="chartFunds"></canvas>
-<canvas id="chartFilms"></canvas>
-<canvas id="chartGrocery"></canvas>
-<canvas id="chartCereals"></canvas>
+<nav>
+    <a href="#cars">Cars</a>
+    <a href="#mutualfunds">Mutual Funds</a>
+    <a href="#films">Films</a>
+    <a href="#grocery">Grocery Stores</a>
+    <a href="#cereals">Cereals</a>
+</nav>
+
+<section id="cars">
+    <h2>Cars Visualization</h2>
+    <div class="report">
+        This bar chart displays the average horsepower of cars categorized by their country of origin: American, European, and Japanese.
+        This visualization technique makes it easy to compare performance characteristics across regions.
+        Using a bar chart here simplifies understanding of numerical differences in car engine strength among different origins.
+    </div>
+    <canvas id="chartCars"></canvas>
+</section>
+
+<section id="mutualfunds">
+    <h2>Mutual Funds Visualization</h2>
+    <div class="report">
+        This grouped bar chart compares YTD, 5-year, and 10-year returns for different mutual fund categories.
+        It effectively shows performance over time, enabling better investment decisions based on growth trends.
+        The grouped format allows a clear, side-by-side comparison of each return metric across categories.
+    </div>
+    <canvas id="chartFunds"></canvas>
+</section>
+
+<section id="films">
+    <h2>Films Visualization</h2>
+    <div class="report">
+        This scatter plot shows how film length relates to popularity, with points colored based on award status.
+        This format is useful for spotting correlations and outliers in continuous data like movie duration and viewer appeal.
+        Coloring based on awards adds an extra layer of insight into which movies achieved both popularity and recognition.
+    </div>
+    <canvas id="chartFilms"></canvas>
+</section>
+
+<section id="grocery">
+    <h2>Grocery Stores Visualization</h2>
+    <div class="report">
+        This bar chart shows the average purchase amount grouped by payment method from grocery store survey data.
+        It helps identify which payment types are associated with higher spending behavior.
+        Bar charts are effective for summarizing grouped numerical values, especially when comparing spending patterns.
+    </div>
+    <canvas id="chartGrocery"></canvas>
+</section>
+
+<section id="cereals">
+    <h2>Cereals Visualization</h2>
+    <div class="report">
+        This bubble chart compares sugar and protein content for various cereals.
+        Each bubble represents a cereal, positioned by sugar and protein, and uniformly sized.
+        This helps visualize nutritional differences in cereals and makes it easier to identify healthier options.
+    </div>
+    <canvas id="chartCereals"></canvas>
+</section>
 
 <script>
-// Load and process CSV data using PapaParse
-function loadCSV(url, callback) {
-    Papa.parse(url, {
+function loadCSV(file, callback) {
+    Papa.parse(file, {
         download: true,
         header: true,
         complete: function(results) {
@@ -32,126 +85,102 @@ function loadCSV(url, callback) {
     });
 }
 
-// Cars Visualization
 loadCSV('cars.csv', function(data) {
-    const regions = {};
+    const hpByOrigin = {};
     data.forEach(row => {
-        const origin = row['Origin'];
-        const hp = parseFloat(row['Horsepower']);
+        const origin = row.Origin;
+        const hp = parseFloat(row.Horsepower);
         if (!isNaN(hp)) {
-            if (!regions[origin]) regions[origin] = [];
-            regions[origin].push(hp);
+            if (!hpByOrigin[origin]) hpByOrigin[origin] = [];
+            hpByOrigin[origin].push(hp);
         }
     });
-    const labels = Object.keys(regions);
-    const values = labels.map(r => regions[r].reduce((a,b)=>a+b)/regions[r].length);
-
-    new Chart(document.getElementById('chartCars'), {
+    const labels = Object.keys(hpByOrigin);
+    const dataPoints = labels.map(o => hpByOrigin[o].reduce((a,b) => a + b) / hpByOrigin[o].length);
+    new Chart(chartCars, {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                label: 'Average Horsepower by Origin',
-                data: values,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)'
-            }]
+            datasets: [{ label: 'Avg Horsepower', data: dataPoints, backgroundColor: 'skyblue' }]
         }
     });
 });
 
-// Mutual Funds Visualization
 loadCSV('mutualfunds.csv', function(data) {
-    const labels = data.map(row => row['Category']);
-    const ytd = data.map(row => parseFloat(row['YTD']));
-    const yr5 = data.map(row => parseFloat(row['5YR']));
-    const yr10 = data.map(row => parseFloat(row['10YR']));
-
-    new Chart(document.getElementById('chartFunds'), {
+    const labels = data.map(d => d.Category);
+    const ytd = data.map(d => parseFloat(d.YTD));
+    const yr5 = data.map(d => parseFloat(d['5YR']));
+    const yr10 = data.map(d => parseFloat(d['10YR']));
+    new Chart(chartFunds, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [
-                { label: 'YTD', data: ytd, backgroundColor: 'rgba(255, 99, 132, 0.6)' },
-                { label: '5YR', data: yr5, backgroundColor: 'rgba(255, 206, 86, 0.6)' },
-                { label: '10YR', data: yr10, backgroundColor: 'rgba(75, 192, 192, 0.6)' }
+                { label: 'YTD', data: ytd, backgroundColor: 'lightcoral' },
+                { label: '5YR', data: yr5, backgroundColor: 'orange' },
+                { label: '10YR', data: yr10, backgroundColor: 'lightgreen' }
             ]
-        },
-        options: { responsive: true }
+        }
     });
 });
 
-// Films Visualization
 loadCSV('film.csv', function(data) {
-    const x = [], y = [], bg = [];
+    const points = [];
+    const colors = [];
     data.forEach(row => {
-        const len = parseFloat(row['Length']);
-        const pop = parseFloat(row['Popularity']);
+        const len = parseFloat(row.Length);
+        const pop = parseFloat(row.Popularity);
         if (!isNaN(len) && !isNaN(pop)) {
-            x.push(len);
-            y.push(pop);
-            bg.push(row['Awards'] === 'Yes' ? 'rgba(0,200,0,0.7)' : 'rgba(200,0,0,0.7)');
+            points.push({ x: len, y: pop });
+            colors.push(row.Awards === 'Yes' ? 'green' : 'red');
         }
     });
-    new Chart(document.getElementById('chartFilms'), {
+    new Chart(chartFilms, {
         type: 'scatter',
         data: {
-            datasets: [{
-                label: 'Film Length vs Popularity',
-                data: x.map((v, i) => ({ x: v, y: y[i] })),
-                backgroundColor: bg
-            }]
+            datasets: [{ label: 'Films', data: points, backgroundColor: colors }]
         },
         options: {
             scales: {
-                x: { title: { display: true, text: 'Film Length (min)' } },
+                x: { title: { display: true, text: 'Length (min)' } },
                 y: { title: { display: true, text: 'Popularity' } }
             }
         }
     });
 });
 
-// Grocery Store Survey Visualization
 loadCSV('grocerystoresurvey.csv', function(data) {
-    const methods = {};
+    const byMethod = {};
     data.forEach(row => {
-        const method = row['PaymentMethod'];
-        const amt = parseFloat(row['PurchaseAmount']);
-        if (!isNaN(amt)) {
-            if (!methods[method]) methods[method] = [];
-            methods[method].push(amt);
+        const method = row.PaymentMethod;
+        const amount = parseFloat(row.PurchaseAmount);
+        if (!isNaN(amount)) {
+            if (!byMethod[method]) byMethod[method] = [];
+            byMethod[method].push(amount);
         }
     });
-    const labels = Object.keys(methods);
-    const values = labels.map(k => methods[k].reduce((a,b)=>a+b)/methods[k].length);
-
-    new Chart(document.getElementById('chartGrocery'), {
+    const labels = Object.keys(byMethod);
+    const values = labels.map(m => byMethod[m].reduce((a,b)=>a+b)/byMethod[m].length);
+    new Chart(chartGrocery, {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                label: 'Avg Purchase by Payment Method',
-                data: values,
-                backgroundColor: 'rgba(153, 102, 255, 0.6)'
-            }]
+            datasets: [{ label: 'Avg Purchase Amount', data: values, backgroundColor: 'mediumpurple' }]
         }
     });
 });
 
-// Cereals Visualization
 loadCSV('cereals.csv', function(data) {
-    const cereals = data.map(row => row['Cereal']);
-    const sugar = data.map(row => parseFloat(row['Sugars']));
-    const protein = data.map(row => parseFloat(row['Protein']));
-
-    new Chart(document.getElementById('chartCereals'), {
+    const bubbles = data.map(row => {
+        return {
+            label: row.Cereal,
+            data: [{ x: parseFloat(row.Sugars), y: parseFloat(row.Protein), r: 6 }],
+            backgroundColor: 'peru'
+        }
+    });
+    new Chart(chartCereals, {
         type: 'bubble',
-        data: {
-            datasets: cereals.map((c, i) => ({
-                label: c,
-                data: [{ x: sugar[i], y: protein[i], r: 5 }],
-                backgroundColor: 'rgba(255, 159, 64, 0.6)'
-            }))
-        },
+        data: { datasets: bubbles },
         options: {
             plugins: { legend: { display: false } },
             scales: {
